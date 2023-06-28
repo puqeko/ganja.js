@@ -1828,6 +1828,8 @@
       }
     }
 
+    res.basis = basis
+
     if ((p==2 || p==3) && (r==1)) {
       res.arrow = res.inline(( from_point, to_point, w=0.03, aspect=0.8, camera=1 )=>{
          from_point = from_point/(-from_point|!1e0); to_point = to_point/(-to_point|!1e0);
