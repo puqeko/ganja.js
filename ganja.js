@@ -433,7 +433,10 @@
   }
 
     // Split a string into groups of same digits eg 1112223 => ["111", "222", "3"]
-    const BASIS_SAME_DIGITS_REGEX = /((\d)\2*)/g
+    const BASIS_SAME_DIGITS_REGEX = /((\d)\2*)/g;
+
+    const base_index_lookup = {};
+    basis.forEach((b, i) => { base_index_lookup[b.replace('e', '')] = i });
 
   // Generate a new class for our algebra. It extends the javascript typed arrays (default float32 but can be specified in options).
     var res = class Element extends generator {
@@ -566,16 +569,16 @@
 
       // Note: haven't thought about custom Cayley tables
       static Sci(mult, base)   {
-        const i = basis.indexOf('e' + base)
-        if (i === -1) throw Error(`e${base} not an element of this algebra`)
+        const i = base_index_lookup[base]
+        if (i === undefined) throw Error(`e${base} not an element of this algebra`)
         return (new Element()).Coeff(i, mult);
       }
       static SciReduce(mult, base) {
         const digitStrings = [...base.matchAll(BASIS_SAME_DIGITS_REGEX)].map(m => m[2])
         let sign = 1;
         for (const digits of digitStrings) {
-          const i = basis.indexOf('e' + digits[0]);
-          if (i === -1) throw Error(`e${digits[0]} not a basis element of this algebra`)
+          const i = base_index_lookup[digits[0]]
+          if (i === undefined) throw Error(`e${digits[0]} not a basis element of this algebra`)
           sign *= metric[i] ** digits.length
         }
         return Element.Sci(sign * mult, digitStrings.map(d => d[0]).join(''));
