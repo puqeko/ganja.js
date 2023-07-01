@@ -432,6 +432,9 @@
    // This generator is UNDER DEVELOPMENT - I'm publishing it so I can test on observable.
   }
 
+    // Split a string into groups of same digits eg 1112223 => ["111", "222", "3"]
+    const BASIS_SAME_DIGITS_REGEX = /((\d)\2*)/g
+
   // Generate a new class for our algebra. It extends the javascript typed arrays (default float32 but can be specified in options).
     var res = class Element extends generator {
 
@@ -560,6 +563,23 @@
     // The static operators typically handle functions and matrices, calling through to element methods for multivectors. They are intended to be flexible and allow as many
     // types of arguments as possible. If performance is a consideration, one should use the generated element methods instead. (which only accept multivector arguments)
       static toEl(x)        { if (x instanceof Function) x=x(); if (!(x instanceof Element)) x=Element.Scalar(x); return x; }
+
+      // Note: haven't thought about custom Cayley tables
+      static Sci(mult, base)   {
+        const i = basis.indexOf('e' + base)
+        if (i === -1) throw Error(`e${base} not an element of this algebra`)
+        return (new Element()).Coeff(i, mult);
+      }
+      static SciReduce(mult, base) {
+        const digitStrings = [...base.matchAll(BASIS_SAME_DIGITS_REGEX)].map(m => m[2])
+        let sign = 1;
+        for (const digits of digitStrings) {
+          const i = basis.indexOf('e' + digits[0]);
+          if (i === -1) throw Error(`e${digits[0]} not a basis element of this algebra`)
+          sign *= metric[i] ** digits.length
+        }
+        return Element.Sci(sign * mult, digitStrings.map(d => d[0]).join(''));
+      }
 
     // Addition and subtraction. Subtraction with only one parameter is negation.
       static Add(a,b,res)   {
@@ -734,7 +754,8 @@
     // Dual, Involute, Reverse, Conjugate, Normalize and length, all direct call through. Conjugate handles matrices.
       static Dual(a)      { if (typeof a=='boolean' || typeof a=='number') return !a; return Element.toEl(a).Dual; };
       static Involute(a)  { return Element.toEl(a).Involute; };
-      static Reverse(a)   { return Element.toEl(a).Reverse; };
+      static UnaryPlus(a) { if (a instanceof Element) return a; return +a; };
+      static Reverse(a)   { if (a instanceof Element) return Element.toEl(a).Reverse; return -a; };
       static Conjugate(a) { if (a.Conjugate) return a.Conjugate; if (a instanceof Array) return a[0].map((c,ci)=>a.map((r,ri)=>Element.Conjugate(a[ri][ci]))); return Element.toEl(a).Conjugate; }
       static Normalize(a) { return Element.toEl(a).Normalized; };
       static Length(a)    { return Element.toEl(a).Length };
