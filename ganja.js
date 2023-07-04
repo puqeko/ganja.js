@@ -849,7 +849,7 @@
           // Reset position and color for cursor.
             lx=-2;ly=options.conformal?-1.85:1.85;lr=0;color='#444';
           // Create the svg element. (master template string till end of function)
-            var svg=new DOMParser().parseFromString(`<SVG viewBox="-2 -${2*(hh/ww||1)} 4 ${4*(hh/ww||1)}" style="width:${ww||512}px; height:${hh||512}px; background-color:#eee; -webkit-user-select:none; -moz-user-select:none; -ms-user-select:none; user-select:none">
+            var svg=new DOMParser().parseFromString(`<SVG viewBox="-2 -${2*(hh/ww||1)} 4 ${4*(hh/ww||1)}" style="width:${ww||512}px; height:${hh||512}px; -webkit-user-select:none; -moz-user-select:none; -ms-user-select:none; user-select:none">
             ${// Add a grid (option)
               options.grid?(()=>{
                 if (tot==4 && !options.conformal) {
